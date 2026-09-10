@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.vulnerableapp">
+
+    <application
+        android:allowBackup="true"
+        android:usesCleartextTraffic="true"
+        android:label="VulnerableApp">
+
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Explicitly exported, no permission: should be flagged CRITICAL-equivalent HIGH -->
+        <activity
+            android:name=".ChangePasswordActivity"
+            android:exported="true" />
+
+        <!-- Implicitly exported via intent-filter, no permission: should be flagged -->
+        <receiver android:name=".SmsReceiver">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Exported provider with no permission: should be flagged CRITICAL -->
+        <provider
+            android:name=".UserDataProvider"
+            android:authorities="com.example.vulnerableapp.provider"
+            android:exported="true" />
+
+        <!-- Exported but permission-guarded: should NOT be flagged -->
+        <service
+            android:name=".SecureSyncService"
+            android:exported="true"
+            android:permission="com.example.vulnerableapp.permission.SYNC" />
+
+        <!-- Not exported: should NOT be flagged -->
+        <activity
+            android:name=".InternalSettingsActivity"
+            android:exported="false" />
+
+    </application>
+</manifest>
