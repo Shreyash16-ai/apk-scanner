@@ -116,6 +116,3 @@ src/main/java/com/portfolio/apkscanner/
 src/test/     JUnit tests + the vulnerable/clean sample corpus
 ```
 
-## License
-
-MIT
