@@ -1,0 +1,174 @@
+======================================================================
+APK STATIC ANALYSIS REPORT
+======================================================================
+Generated: 2026-09-11T03:05:38.492221200Z
+Files scanned: 2992
+Manifest analyzed: yes
+
+SUMMARY
+----------------------------------------------------------------------
+  CRITICAL   1
+  HIGH       8
+  MEDIUM     17
+  LOW        0
+  INFO       0
+  TOTAL      26
+
+FINDINGS
+======================================================================
+
+[1] CRITICAL - Exported Provider Without Permission Check (EXPORTED_COMPONENT_NO_PERMISSION, CWE-926)
+    File: D:\decompiled-insecurebank\resources\AndroidManifest.xml:-1
+    Code: <provider android:name="com.android.insecurebankv2.TrackUserContentProvider" android:exported="true" ...>
+    Why it matters: This provider is reachable by any other application on the device via an explicit Intent naming its component, with no android:permission guard. If it performs a sensitive action (reads stored data, makes authenticated network calls, renders attacker-influenceable content), a malicious co-installed app can trigger it directly, bypassing your app's normal UI/auth flow entirely.
+    Fix: If this component doesn't need to be called from other apps, set android:exported="false" explicitly. If it does need external callers, define a signature-level custom permission and require it via android:permission, and validate any Intent extras defensively regardless.
+
+[2] HIGH - Hardcoded IV (WEAK_CRYPTO, CWE-329)
+    File: sources\com\android\insecurebankv2\CryptoClass.java:26
+    Code: new IvParameterSpec(ivBytes)
+    Why it matters: This IvParameterSpec appears to be constructed from a literal byte array rather than a freshly-generated random value. A static IV means encrypting the same plaintext with the same key always produces the same ciphertext, defeating the purpose of the IV and enabling pattern analysis / chosen-plaintext style attacks against CBC mode.
+    Fix: Generate the IV randomly per encryption: byte[] iv = new byte[16]; new SecureRandom().nextBytes(iv); and transmit/store the IV alongside the ciphertext (IVs are not secret, just non-reused).
+
+[3] HIGH - Hardcoded IV (WEAK_CRYPTO, CWE-329)
+    File: sources\com\android\insecurebankv2\CryptoClass.java:34
+    Code: new IvParameterSpec(ivBytes)
+    Why it matters: This IvParameterSpec appears to be constructed from a literal byte array rather than a freshly-generated random value. A static IV means encrypting the same plaintext with the same key always produces the same ciphertext, defeating the purpose of the IV and enabling pattern analysis / chosen-plaintext style attacks against CBC mode.
+    Fix: Generate the IV randomly per encryption: byte[] iv = new byte[16]; new SecureRandom().nextBytes(iv); and transmit/store the IV alongside the ciphertext (IVs are not secret, just non-reused).
+
+[4] HIGH - JavaScript Bridge Exposed to WebView (WEBVIEW_MISCONFIG, CWE-749)
+    File: sources\com\google\android\gms\internal\zzig.java:129
+    Code: addJavascriptInterface(new zzih(this), "googleAdsJsInterface")
+    Why it matters: addJavascriptInterface exposes this Java object's annotated methods to JavaScript executing inside the WebView (setJavaScriptEnabled(true) confirmed in this file). If the WebView ever loads untrusted or attacker-influenceable content (HTTP pages, externally-supplied URLs, content with an XSS flaw), that content can invoke this bridge's methods directly.
+    Fix: Only annotate methods that are safe to expose to arbitrary web content with @JavascriptInterface. Load only trusted, HTTPS content in this WebView, and consider removing the bridge if it's not essential.
+
+[5] HIGH - Exported Activity Without Permission Check (EXPORTED_COMPONENT_NO_PERMISSION, CWE-926)
+    File: D:\decompiled-insecurebank\resources\AndroidManifest.xml:-1
+    Code: <activity android:name="com.android.insecurebankv2.PostLogin" android:exported="true" ...>
+    Why it matters: This activity is reachable by any other application on the device via an explicit Intent naming its component, with no android:permission guard. If it performs a sensitive action (reads stored data, makes authenticated network calls, renders attacker-influenceable content), a malicious co-installed app can trigger it directly, bypassing your app's normal UI/auth flow entirely.
+    Fix: If this component doesn't need to be called from other apps, set android:exported="false" explicitly. If it does need external callers, define a signature-level custom permission and require it via android:permission, and validate any Intent extras defensively regardless.
+
+[6] HIGH - Exported Activity Without Permission Check (EXPORTED_COMPONENT_NO_PERMISSION, CWE-926)
+    File: D:\decompiled-insecurebank\resources\AndroidManifest.xml:-1
+    Code: <activity android:name="com.android.insecurebankv2.DoTransfer" android:exported="true" ...>
+    Why it matters: This activity is reachable by any other application on the device via an explicit Intent naming its component, with no android:permission guard. If it performs a sensitive action (reads stored data, makes authenticated network calls, renders attacker-influenceable content), a malicious co-installed app can trigger it directly, bypassing your app's normal UI/auth flow entirely.
+    Fix: If this component doesn't need to be called from other apps, set android:exported="false" explicitly. If it does need external callers, define a signature-level custom permission and require it via android:permission, and validate any Intent extras defensively regardless.
+
+[7] HIGH - Exported Activity Without Permission Check (EXPORTED_COMPONENT_NO_PERMISSION, CWE-926)
+    File: D:\decompiled-insecurebank\resources\AndroidManifest.xml:-1
+    Code: <activity android:name="com.android.insecurebankv2.ViewStatement" android:exported="true" ...>
+    Why it matters: This activity is reachable by any other application on the device via an explicit Intent naming its component, with no android:permission guard. If it performs a sensitive action (reads stored data, makes authenticated network calls, renders attacker-influenceable content), a malicious co-installed app can trigger it directly, bypassing your app's normal UI/auth flow entirely.
+    Fix: If this component doesn't need to be called from other apps, set android:exported="false" explicitly. If it does need external callers, define a signature-level custom permission and require it via android:permission, and validate any Intent extras defensively regardless.
+
+[8] HIGH - Exported Activity Without Permission Check (EXPORTED_COMPONENT_NO_PERMISSION, CWE-926)
+    File: D:\decompiled-insecurebank\resources\AndroidManifest.xml:-1
+    Code: <activity android:name="com.android.insecurebankv2.ChangePassword" android:exported="true" ...>
+    Why it matters: This activity is reachable by any other application on the device via an explicit Intent naming its component, with no android:permission guard. If it performs a sensitive action (reads stored data, makes authenticated network calls, renders attacker-influenceable content), a malicious co-installed app can trigger it directly, bypassing your app's normal UI/auth flow entirely.
+    Fix: If this component doesn't need to be called from other apps, set android:exported="false" explicitly. If it does need external callers, define a signature-level custom permission and require it via android:permission, and validate any Intent extras defensively regardless.
+
+[9] HIGH - Exported Receiver Without Permission Check (EXPORTED_COMPONENT_NO_PERMISSION, CWE-926)
+    File: D:\decompiled-insecurebank\resources\AndroidManifest.xml:-1
+    Code: <receiver android:name="com.android.insecurebankv2.MyBroadCastReceiver" android:exported="true" ...>
+    Why it matters: This receiver is reachable by any other application on the device via an explicit Intent naming its component, with no android:permission guard. If it performs a sensitive action (reads stored data, makes authenticated network calls, renders attacker-influenceable content), a malicious co-installed app can trigger it directly, bypassing your app's normal UI/auth flow entirely.
+    Fix: If this component doesn't need to be called from other apps, set android:exported="false" explicitly. If it does need external callers, define a signature-level custom permission and require it via android:permission, and validate any Intent extras defensively regardless.
+
+[10] MEDIUM - Write to External Storage (INSECURE_STORAGE, CWE-922)
+    File: sources\android\support\v4\content\ContextCompat.java:48
+    Code: Environment.getExternalStorageDirectory()
+    Why it matters: This call obtains a path on external/shared storage. If sensitive data (credentials, PII, tokens) is subsequently written here, it survives app uninstall, may be readable by other apps depending on API level and permissions, and is visible via USB/file manager access. (Flagged for manual review — this scanner does not trace whether the resulting path is actually used for sensitive data.)
+    Fix: Prefer internal storage (Context.getFilesDir()) for anything sensitive, and use EncryptedFile / Android Keystore-backed encryption if the data must live outside internal storage.
+
+[11] MEDIUM - Write to External Storage (INSECURE_STORAGE, CWE-922)
+    File: sources\android\support\v4\content\ContextCompat.java:62
+    Code: Environment.getExternalStorageDirectory()
+    Why it matters: This call obtains a path on external/shared storage. If sensitive data (credentials, PII, tokens) is subsequently written here, it survives app uninstall, may be readable by other apps depending on API level and permissions, and is visible via USB/file manager access. (Flagged for manual review — this scanner does not trace whether the resulting path is actually used for sensitive data.)
+    Fix: Prefer internal storage (Context.getFilesDir()) for anything sensitive, and use EncryptedFile / Android Keystore-backed encryption if the data must live outside internal storage.
+
+[12] MEDIUM - Write to External Storage (INSECURE_STORAGE, CWE-922)
+    File: sources\android\support\v4\content\ContextCompat.java:60
+    Code: ContextCompatFroyo.getExternalFilesDir(context, type)
+    Why it matters: This call obtains a path on external/shared storage. If sensitive data (credentials, PII, tokens) is subsequently written here, it survives app uninstall, may be readable by other apps depending on API level and permissions, and is visible via USB/file manager access. (Flagged for manual review — this scanner does not trace whether the resulting path is actually used for sensitive data.)
+    Fix: Prefer internal storage (Context.getFilesDir()) for anything sensitive, and use EncryptedFile / Android Keystore-backed encryption if the data must live outside internal storage.
+
+[13] MEDIUM - Write to External Storage (INSECURE_STORAGE, CWE-922)
+    File: sources\android\support\v4\content\ContextCompat.java:76
+    Code: Environment.getExternalStorageDirectory()
+    Why it matters: This call obtains a path on external/shared storage. If sensitive data (credentials, PII, tokens) is subsequently written here, it survives app uninstall, may be readable by other apps depending on API level and permissions, and is visible via USB/file manager access. (Flagged for manual review — this scanner does not trace whether the resulting path is actually used for sensitive data.)
+    Fix: Prefer internal storage (Context.getFilesDir()) for anything sensitive, and use EncryptedFile / Android Keystore-backed encryption if the data must live outside internal storage.
+
+[14] MEDIUM - Write to External Storage (INSECURE_STORAGE, CWE-922)
+    File: sources\android\support\v4\content\ContextCompatFroyo.java:16
+    Code: context.getExternalFilesDir(type)
+    Why it matters: This call obtains a path on external/shared storage. If sensitive data (credentials, PII, tokens) is subsequently written here, it survives app uninstall, may be readable by other apps depending on API level and permissions, and is visible via USB/file manager access. (Flagged for manual review — this scanner does not trace whether the resulting path is actually used for sensitive data.)
+    Fix: Prefer internal storage (Context.getFilesDir()) for anything sensitive, and use EncryptedFile / Android Keystore-backed encryption if the data must live outside internal storage.
+
+[15] MEDIUM - Write to External Storage (INSECURE_STORAGE, CWE-922)
+    File: sources\android\support\v4\content\FileProvider.java:180
+    Code: Environment.getExternalStorageDirectory()
+    Why it matters: This call obtains a path on external/shared storage. If sensitive data (credentials, PII, tokens) is subsequently written here, it survives app uninstall, may be readable by other apps depending on API level and permissions, and is visible via USB/file manager access. (Flagged for manual review — this scanner does not trace whether the resulting path is actually used for sensitive data.)
+    Fix: Prefer internal storage (Context.getFilesDir()) for anything sensitive, and use EncryptedFile / Android Keystore-backed encryption if the data must live outside internal storage.
+
+[16] MEDIUM - Write to External Storage (INSECURE_STORAGE, CWE-922)
+    File: sources\android\support\v4\os\EnvironmentCompat.java:21
+    Code: Environment.getExternalStorageDirectory()
+    Why it matters: This call obtains a path on external/shared storage. If sensitive data (credentials, PII, tokens) is subsequently written here, it survives app uninstall, may be readable by other apps depending on API level and permissions, and is visible via USB/file manager access. (Flagged for manual review — this scanner does not trace whether the resulting path is actually used for sensitive data.)
+    Fix: Prefer internal storage (Context.getFilesDir()) for anything sensitive, and use EncryptedFile / Android Keystore-backed encryption if the data must live outside internal storage.
+
+[17] MEDIUM - Suspected hardcoded secret (name + entropy heuristic) (HARDCODED_SECRET, CWE-798)
+    File: sources\com\android\insecurebankv2\ChangePassword.java:45
+    Code: PASSWORD_PATTERN = "((?=*******************************************20})"
+    Why it matters: Variable name 'PASSWORD_PATTERN' suggests a credential, and the assigned string has high randomness (entropy=4.29 bits/char), consistent with a key/token rather than a UI string. Flagged at MEDIUM confidence since this is a heuristic, not a signature match.
+    Fix: Manually verify whether this is a real secret. If so, move it server-side or into Android Keystore rather than compiling it into the app.
+
+[18] MEDIUM - Write to External Storage (INSECURE_STORAGE, CWE-922)
+    File: sources\com\android\insecurebankv2\DoTransfer.java:162
+    Code: Environment.getExternalStorageDirectory()
+    Why it matters: This call obtains a path on external/shared storage. If sensitive data (credentials, PII, tokens) is subsequently written here, it survives app uninstall, may be readable by other apps depending on API level and permissions, and is visible via USB/file manager access. (Flagged for manual review — this scanner does not trace whether the resulting path is actually used for sensitive data.)
+    Fix: Prefer internal storage (Context.getFilesDir()) for anything sensitive, and use EncryptedFile / Android Keystore-backed encryption if the data must live outside internal storage.
+
+[19] MEDIUM - Write to External Storage (INSECURE_STORAGE, CWE-922)
+    File: sources\com\android\insecurebankv2\DoTransfer.java:180
+    Code: Environment.getExternalStorageDirectory()
+    Why it matters: This call obtains a path on external/shared storage. If sensitive data (credentials, PII, tokens) is subsequently written here, it survives app uninstall, may be readable by other apps depending on API level and permissions, and is visible via USB/file manager access. (Flagged for manual review — this scanner does not trace whether the resulting path is actually used for sensitive data.)
+    Fix: Prefer internal storage (Context.getFilesDir()) for anything sensitive, and use EncryptedFile / Android Keystore-backed encryption if the data must live outside internal storage.
+
+[20] MEDIUM - Write to External Storage (INSECURE_STORAGE, CWE-922)
+    File: sources\com\android\insecurebankv2\ViewStatement.java:25
+    Code: Environment.getExternalStorageDirectory()
+    Why it matters: This call obtains a path on external/shared storage. If sensitive data (credentials, PII, tokens) is subsequently written here, it survives app uninstall, may be readable by other apps depending on API level and permissions, and is visible via USB/file manager access. (Flagged for manual review — this scanner does not trace whether the resulting path is actually used for sensitive data.)
+    Fix: Prefer internal storage (Context.getFilesDir()) for anything sensitive, and use EncryptedFile / Android Keystore-backed encryption if the data must live outside internal storage.
+
+[21] MEDIUM - Write to External Storage (INSECURE_STORAGE, CWE-922)
+    File: sources\com\android\insecurebankv2\ViewStatement.java:29
+    Code: Environment.getExternalStorageDirectory()
+    Why it matters: This call obtains a path on external/shared storage. If sensitive data (credentials, PII, tokens) is subsequently written here, it survives app uninstall, may be readable by other apps depending on API level and permissions, and is visible via USB/file manager access. (Flagged for manual review — this scanner does not trace whether the resulting path is actually used for sensitive data.)
+    Fix: Prefer internal storage (Context.getFilesDir()) for anything sensitive, and use EncryptedFile / Android Keystore-backed encryption if the data must live outside internal storage.
+
+[22] MEDIUM - Weak Hash Algorithm (MD5) (WEAK_CRYPTO, CWE-327)
+    File: sources\com\google\android\gms\ads\internal\util\client\zza.java:116
+    Code: MessageDigest.getInstance("MD5")
+    Why it matters: MessageDigest.getInstance("MD5") is cryptographically broken for collision resistance. NOTE: this is only a real vulnerability if the hash is used in a security context (password hashing, integrity/signature verification, token generation) — MD5/SHA-1 used purely as a non-adversarial checksum (e.g. cache keys) is not a security issue. This scanner flags at MEDIUM and defers the final call to manual review since usage intent isn't always syntactically determinable.
+    Fix: For password hashing use bcrypt/scrypt/Argon2 (via a library, since the JDK doesn't ship these). For integrity/signatures use SHA-256 or better.
+
+[23] MEDIUM - Weak Hash Algorithm (SHA1) (WEAK_CRYPTO, CWE-327)
+    File: sources\com\google\android\gms\iid\InstanceID.java:62
+    Code: MessageDigest.getInstance("SHA1")
+    Why it matters: MessageDigest.getInstance("SHA1") is cryptographically broken for collision resistance. NOTE: this is only a real vulnerability if the hash is used in a security context (password hashing, integrity/signature verification, token generation) — MD5/SHA-1 used purely as a non-adversarial checksum (e.g. cache keys) is not a security issue. This scanner flags at MEDIUM and defers the final call to manual review since usage intent isn't always syntactically determinable.
+    Fix: For password hashing use bcrypt/scrypt/Argon2 (via a library, since the JDK doesn't ship these). For integrity/signatures use SHA-256 or better.
+
+[24] MEDIUM - Weak Hash Algorithm (MD5) (WEAK_CRYPTO, CWE-327)
+    File: sources\com\google\android\gms\internal\zzak.java:81
+    Code: MessageDigest.getInstance("MD5")
+    Why it matters: MessageDigest.getInstance("MD5") is cryptographically broken for collision resistance. NOTE: this is only a real vulnerability if the hash is used in a security context (password hashing, integrity/signature verification, token generation) — MD5/SHA-1 used purely as a non-adversarial checksum (e.g. cache keys) is not a security issue. This scanner flags at MEDIUM and defers the final call to manual review since usage intent isn't always syntactically determinable.
+    Fix: For password hashing use bcrypt/scrypt/Argon2 (via a library, since the JDK doesn't ship these). For integrity/signatures use SHA-256 or better.
+
+[25] MEDIUM - Weak Hash Algorithm (MD5) (WEAK_CRYPTO, CWE-327)
+    File: sources\com\google\android\gms\internal\zzbl.java:19
+    Code: MessageDigest.getInstance("MD5")
+    Why it matters: MessageDigest.getInstance("MD5") is cryptographically broken for collision resistance. NOTE: this is only a real vulnerability if the hash is used in a security context (password hashing, integrity/signature verification, token generation) — MD5/SHA-1 used purely as a non-adversarial checksum (e.g. cache keys) is not a security issue. This scanner flags at MEDIUM and defers the final call to manual review since usage intent isn't always syntactically determinable.
+    Fix: For password hashing use bcrypt/scrypt/Argon2 (via a library, since the JDK doesn't ship these). For integrity/signatures use SHA-256 or better.
+
+[26] MEDIUM - Weak Hash Algorithm (MD5) (WEAK_CRYPTO, CWE-327)
+    File: sources\com\google\android\gms\internal\zzhl.java:558
+    Code: MessageDigest.getInstance("MD5")
+    Why it matters: MessageDigest.getInstance("MD5") is cryptographically broken for collision resistance. NOTE: this is only a real vulnerability if the hash is used in a security context (password hashing, integrity/signature verification, token generation) — MD5/SHA-1 used purely as a non-adversarial checksum (e.g. cache keys) is not a security issue. This scanner flags at MEDIUM and defers the final call to manual review since usage intent isn't always syntactically determinable.
+    Fix: For password hashing use bcrypt/scrypt/Argon2 (via a library, since the JDK doesn't ship these). For integrity/signatures use SHA-256 or better.
